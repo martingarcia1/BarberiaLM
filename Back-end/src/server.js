@@ -1,0 +1,52 @@
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const { testConnection } = require('./config/database');
+const initDatabase = require('./config/init-db');
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Rutas API
+app.use('/api/clientes', require('./routes/cliente.routes'));
+app.use('/api/empleados', require('./routes/empleado.routes'));
+app.use('/api/admins', require('./routes/admin.routes'));
+app.use('/api/servicios', require('./routes/servicio.routes'));
+app.use('/api/citas', require('./routes/cita.routes'));
+app.use('/api/productos', require('./routes/producto.routes'));
+app.use('/api/venta-productos', require('./routes/venta_producto.routes'));
+app.use('/api/metodos-pago', require('./routes/metodo_pago.routes'));
+app.use('/api/pagos', require('./routes/pago.routes'));
+app.use('/api/puntos-clientes', require('./routes/puntos_cliente.routes'));
+app.use('/api/historial-puntos', require('./routes/historial_puntos.routes'));
+
+// Ruta raíz
+app.get('/', (req, res) => {
+    res.json({ message: 'Bienvenido a la API de la Barbería' });
+});
+
+// Puerto
+const PORT = process.env.PORT || 3000;
+
+// Iniciar servidor
+const startServer = async () => {
+    try {
+        // Probar conexión a la base de datos
+        await testConnection();
+        
+        // Inicializar base de datos (comentar esta línea en producción)
+        await initDatabase();
+        
+        app.listen(PORT, () => {
+            console.log(`Servidor corriendo en el puerto ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Error al iniciar el servidor:', error);
+    }
+};
+
+startServer();
