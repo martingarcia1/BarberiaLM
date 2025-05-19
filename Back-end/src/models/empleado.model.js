@@ -53,7 +53,7 @@ const Empleado = sequelize.define('Empleado', {
         beforeCreate: async (empleado) => {
             if (empleado.contrasena) {
                 const salt = await bcrypt.genSalt(10);
-                empleado.contraseña = await bcrypt.hash(empleado.contrasena, salt);
+                empleado.contrasena = await bcrypt.hash(empleado.contrasena, salt);
             }
         },
         beforeUpdate: async (empleado) => {
@@ -70,4 +70,4 @@ Empleado.prototype.comparePassword = async function(candidatePassword) {
     return bcrypt.compare(candidatePassword, this.contrasena);
 };
 
-module.exports = Empleado; 
+module.exports = Empleado;

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import Footer from '../Home/Footer';
 import { useState, useEffect } from 'react';
+import { FaMapMarkerAlt, FaClock, FaCalendarAlt, FaStar } from 'react-icons/fa';
 
 const ReservasTurnos = () => {
     const navigate = useNavigate();
@@ -30,27 +31,34 @@ const ReservasTurnos = () => {
                 <div className="flex items-center w-[600px] movil-sm:w-[400px] movil-s:w-[400px] movil-m:w-[500px] justify-center p-4">
                     <div className="bg-[#AFB3B7] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out">
                         <div className="flex justify-center">
-                            <img className='w-full ' src="/img/barberia-reserva.jpg"/>
+                            <img className='w-full ' src="/img/barberia-reserva.jpg" alt="Barbería reserva"/>
                         </div>
                         <div className="p-6 space-y-4 movil-sm:space-y-4 font-julius text-[#0E3C09]">
-                            <h2 className="text-2xl font-bold text-[#e0e0e0] hover:text-gray-600 transition-colors duration-300" tabIndex="0">Reservá tu turno para tu servicio</h2>
-                            <div className="flex items-center space-x-1" aria-label="5 out of 5 stars rating">
-                                {/* Aquí podrías poner estrellas o info de la barbería */}
+                            <h2 className="text-2xl font-bold text-[#e0e0e0] hover:text-gray-600 transition-colors duration-300" tabIndex="0">
+                                Reservá tu turno para tu servicio
+                            </h2>
+                            <div className="flex items-center space-x-1 text-yellow-500" aria-label="5 out of 5 stars rating">
+                                <FaStar />
+                                <FaStar />
+                                <FaStar />
+                                <FaStar />
+                                <FaStar />
                             </div>
-                            <div className="flex items-start space-x-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                <p className="text-[#e0e0e0]">Av. Roca 2398</p>
+                            <div className="flex items-center space-x-2 text-[#e0e0e0]">
+                                <FaMapMarkerAlt className="h-6 w-6" />
+                                <p>Av. Roca 2398</p>
+                            </div>
+                            <div className="flex items-center space-x-2 text-[#e0e0e0]">
+                                <FaClock className="h-5 w-5" />
+                                <p>Lunes a Sábado</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="flex justify-center mb-[50px] ">
-                <h2 className="font-julius text-[#e0e0e0] text-4xl font-extrabold border-b-2 border-b-[#AFB3B7]" >
+            <div className="flex justify-center mb-[50px]">
+                <h2 className="font-julius text-[#e0e0e0] text-4xl font-extrabold border-b-2 border-b-[#AFB3B7]">
                     Reservar Turno
                 </h2>
             </div>
@@ -70,10 +78,11 @@ const ReservasTurnos = () => {
                                     {dias.map(dia => (
                                         <button
                                             key={dia}
-                                            className="mt-2 rounded-md text-[16px] p-2 font-julius border border-[#e0e0e0] hover:scale-105 transition-transform duration-300 mb-2 text-[#e0e0e0] bg-[#0E3C09] w-full"
+                                            className="mt-2 rounded-md text-[16px] p-2 font-julius border border-[#e0e0e0] hover:scale-105 transition-transform duration-300 mb-2 text-[#e0e0e0] bg-[#0E3C09] w-full flex items-center justify-center gap-2"
                                             onClick={() => handleTurnosClick(servicio, dia)}
                                         >
-                                            Reservar Turno ({dia})
+                                            <FaCalendarAlt />
+                                            <span>Reservar Turno ({dia})</span>
                                         </button>
                                     ))}
                                 </div>
@@ -83,7 +92,7 @@ const ReservasTurnos = () => {
                 )}
             </div>
 
-            <Footer></Footer>
+            <Footer />
         </>
     );
 };

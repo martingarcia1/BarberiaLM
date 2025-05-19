@@ -1,0 +1,161 @@
+import { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { isTokenvalid } from '../../../utils/isTokenValid';
+import { FaUser, FaHome, FaCut, FaCalendarAlt, FaShoppingCart, FaGift } from 'react-icons/fa';
+import PropTypes from 'prop-types';
+
+const NavBar = ({ setCartOpen }) => {
+  const [isLogged, setIsLogged] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+  const userMenuRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    
+    if (token && isTokenvalid(token)) {
+      setIsLogged(true);
+    } else {
+      setIsLogged(false);
+      if (window.location.pathname.includes('/cliente/')) {
+        navigate('/login/cliente');
+      }
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [userMenuOpen]);
+
+  useEffect(() => {
+    // Actualizar contador del carrito al montar el componente
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    setCartCount(carrito.length);
+
+    // Escuchar eventos de actualización del carrito
+    const handleCartUpdate = () => {
+      const updatedCarrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      setCartCount(updatedCarrito.length);
+    };
+
+    window.addEventListener('updateCartCounter', handleCartUpdate);
+    return () => window.removeEventListener('updateCartCounter', handleCartUpdate);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    setIsLogged(false);
+    setUserMenuOpen(false);
+    navigate("/");
+  };
+
+  const goToProfile = () => {
+    const tipoUsuario = localStorage.getItem('tipoUsuario');
+    setUserMenuOpen(false);
+    
+    if (tipoUsuario === 'cliente') {
+      navigate('/cliente/dashboard');
+    } else if (tipoUsuario === 'empleado') {
+      navigate('/empleado/dashboard');
+    } else if (tipoUsuario === 'admin') {
+      navigate('/admin/dashboard');
+    }
+  };
+
+  return (
+    <div className="fixed w-full top-0 z-50">
+      <nav className="bg-[#cacfca] py-3">
+        <div className="max-w-screen-xl mx-auto flex justify-between items-center px-4">
+          <Link to="/" className="flex items-center space-x-3">
+            <img src="/img/labarberia.jpg" alt="Logo" className="h-14" />
+          </Link>
+
+          <div className="flex items-center space-x-7">
+            <Link to="/" className="text-[#0A4B2E] hover:text-[#224e1a] transition-colors">
+              <FaHome className="text-2xl" />
+            </Link>
+            <Link to="/servicios" className="text-[#0A4B2E] hover:text-[#224e1a] transition-colors">
+              <FaCut className="text-2xl" />
+            </Link>
+            <Link to="/turnos" className="text-[#0A4B2E] hover:text-[#224e1a] transition-colors">
+              <FaCalendarAlt className="text-2xl" />
+            </Link>
+            <button 
+              onClick={() => setCartOpen(true)} 
+              className="text-[#0A4B2E] hover:text-[#224e1a] transition-colors relative"
+            >
+              <FaShoppingCart className="text-2xl" />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+            {isLogged && (
+              <Link to="/canjear-puntos" className="text-[#0A4B2E] hover:text-[#224e1a] transition-colors">
+                <FaGift className="text-2xl" />
+              </Link>
+            )}
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="text-[#0A4B2E] hover:text-[#224e1a] transition-colors"
+              >
+                <FaUser className="text-2xl" />
+              </button>
+              {userMenuOpen && (
+                <div ref={userMenuRef} className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                  {!isLogged ? (
+                    <>
+                      <button
+                        className="block w-full text-left px-4 py-2 text-[#0A4B2E] hover:bg-gray-100 font-julius"
+                        onClick={() => { setUserMenuOpen(false); navigate("/login"); }}
+                      >
+                        Iniciar sesión
+                      </button>
+                      <button
+                        className="block w-full text-left px-4 py-2 text-[#0A4B2E] hover:bg-gray-100 font-julius"
+                        onClick={() => { setUserMenuOpen(false); navigate("/register"); }}
+                      >
+                        Registrarse
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        className="block w-full text-left px-4 py-2 text-[#0A4B2E] hover:bg-gray-100 font-julius"
+                        onClick={goToProfile}
+                      >
+                        Ver Perfil
+                      </button>
+                      <button
+                        className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 font-julius"
+                        onClick={handleLogout}
+                      >
+                        Cerrar sesión
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+  );
+};
+
+NavBar.propTypes = {
+  setCartOpen: PropTypes.func.isRequired
+};
+
+export default NavBar;

@@ -23,7 +23,8 @@ const ReservaTurnoModal = ({
     empleado_id: '',
     servicio_id: '',
     observaciones: '',
-    pagado_con_puntos: false
+    pagado_con_puntos: false,
+    cliente_id: localStorage.getItem('cliente_id') // Agregar cliente_id del localStorage
   });
   const [empleados, setEmpleados] = useState([]);
   const [errors, setErrors] = useState({});
@@ -58,25 +59,42 @@ const ReservaTurnoModal = ({
   useEffect(() => {
     const cargarServicios = async () => {
       try {
+        // Primero verificar si el servicio está en el carrito
+        const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+        const servicioEnCarrito = carrito.find(item => 
+          item.name.toLowerCase() === servicio.toLowerCase()
+        );
+
+        if (!servicioEnCarrito) {
+          toast.error('El servicio no está en el carrito. Por favor, agregue el servicio primero.');
+          onRequestClose();
+          return;
+        }
+
         const response = await axios.get(`${url.urlKey}/api/servicios`);
         setServicios(response.data);
-        // Buscar y preseleccionar el servicio que coincide con el prop
+        
+        // Buscar y preseleccionar el servicio que coincide
         const servicioEncontrado = response.data.find(s => 
-          s.nombre_servicio === servicio ||
           s.nombre_servicio.toLowerCase() === servicio.toLowerCase()
         );
+
         if (servicioEncontrado) {
           setFormData(prev => ({
             ...prev,
             servicio_id: servicioEncontrado.id
           }));
+        } else {
+          toast.error('Servicio no encontrado en la base de datos');
+          onRequestClose();
         }
       } catch (error) {
         toast.error('Error al cargar los servicios disponibles');
+        console.error('Error:', error);
       }
     };
     if (isOpen) cargarServicios();
-  }, [isOpen, servicio]);
+  }, [isOpen, servicio, onRequestClose]);
 
   // Validaciones
   const validate = () => {
@@ -173,6 +191,7 @@ const ReservaTurnoModal = ({
     const validationErrors = validate();
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) return;
+    
     setIsSubmitting(true);
     try {
       // Guardar datos cliente en localStorage
@@ -185,13 +204,9 @@ const ReservaTurnoModal = ({
       };
       localStorage.setItem('datos_cliente', JSON.stringify(datosCliente));
 
-      // Armar objeto para backend
+      // Crear objeto para el backend
       const cita = {
-        cliente_nombre: formData.nombre,
-        cliente_apellido: formData.apellido,
-        cliente_dni: formData.dni,
-        cliente_celular: formData.celular,
-        cliente_email: formData.email,
+        cliente_id: localStorage.getItem('cliente_id'),  // Asegúrate de tener el cliente_id si es necesario
         empleado_id: formData.empleado_id,
         servicio_id: formData.servicio_id,
         fecha_hora: `${dia}T${horario}`,
@@ -199,14 +214,29 @@ const ReservaTurnoModal = ({
         pagado_con_puntos: formData.pagado_con_puntos,
         estado: 'Pendiente'
       };
+
       const resp = await axios.post(`${url.urlKey}/api/citas`, cita);
+      
+      // Actualizar el carrito removiendo el servicio reservado
+      const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      const nuevoCarrito = carrito.filter(item => 
+        item.name.toLowerCase() !== servicio.toLowerCase()
+      );
+      localStorage.setItem('carrito', JSON.stringify(nuevoCarrito));
+
       setIsSubmitting(false);
       setMensajeWhatsApp(resp.data.mensajeWhatsApp || "");
       setModalExito(true);
+      
+      // Disparar evento para actualizar contador del carrito
+      const event = new CustomEvent('updateCartCounter');
+      window.dispatchEvent(event);
+      
       onReservaExitosa && onReservaExitosa();
     } catch (error) {
       setIsSubmitting(false);
       toast.error(error.response?.data?.message || 'Error al reservar el turno');
+      console.error('Error completo:', error);
     }
   };
 

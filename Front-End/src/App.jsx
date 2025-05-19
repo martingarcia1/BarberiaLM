@@ -69,7 +69,7 @@ const App = () => {
               <CanjearPuntos />
             </ProtectedRoute>
           } />
-          <Route path="/cliente/perfil" element={
+          <Route path="/perfil" element={
             <ProtectedRoute tipoUsuario="cliente">
               <PerfilUsuario />
             </ProtectedRoute>

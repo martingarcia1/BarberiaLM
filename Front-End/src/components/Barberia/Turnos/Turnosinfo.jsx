@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
+import { Notyf } from 'notyf';
+import 'notyf/notyf.min.css';
 
 const TurnosInfo = ({ isOpen, onRequestClose, selectedDate, onConfirm }) => {
   const [formData, setFormData] = useState({
     nombre: '',
+    apellido: '',
     dni: '',
-    celular: '',
-    fechaNacimiento: ''
+    telefono: '',
+    email: '',
+    genero: '',
+    fecha_nacimiento: '',
+    contrasena: ''
   });
 
   const [errors, setErrors] = useState({
     nombre: '',
+    apellido: '',
     dni: '',
-    celular: '',
-    fechaNacimiento: ''
+    telefono: '',
+    email: '',
+    genero: '',
+    fecha_nacimiento: '',
+    contrasena: ''
   });
-
 
   const notyf = new Notyf({
     duration: 3000,
@@ -30,255 +39,317 @@ const TurnosInfo = ({ isOpen, onRequestClose, selectedDate, onConfirm }) => {
         className: "rounded-[10px] text-black font-julius text-[15px]"
       }
     ]
-
   });
   window.notyf = notyf;
 
-const [isValid, setIsValid] = useState(false);
+  const [isValid, setIsValid] = useState(false);
 
-const handleInputChange = (e) => {
-  const { name, value } = e.target;
-  let newValue = value;
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    let newValue = value;
 
-  // Validaciones específicas para cada campo
-  switch (name) {
-    case 'nombre':
-      // Solo permitir letras y espacios
-      newValue = value.replace(/[^A-Za-zÁáÉéÍíÓóÚúÑñ\s]/g, '');
-      break;
+    // Validaciones específicas para cada campo
+    switch (name) {
+      case 'nombre':
+      case 'apellido':
+        // Solo permitir letras, espacios y caracteres acentuados
+        newValue = value.replace(/[^A-Za-zÁáÉéÍíÓóÚúÑñ\s]/g, '');
+        break;
 
-    case 'dni':
-      // Solo permitir números y máximo 8 dígitos
-      newValue = value.replace(/\D/g, '').slice(0, 8);
-      break;
+      case 'dni':
+        // Solo permitir números y máximo 8 dígitos
+        newValue = value.replace(/\D/g, '').slice(0, 8);
+        break;
 
-    case 'celular':
-      // Solo permitir números y máximo 10 dígitos
-      newValue = value.replace(/\D/g, '').slice(0, 10);
-      break;
+      case 'telefono':
+        // Solo permitir números y máximo 10 dígitos
+        newValue = value.replace(/\D/g, '').slice(0, 10);
+        break;
 
-    case 'fechaNacimiento':
-      // Solo permitir números y formatear como fecha
-      newValue = value.replace(/[^\d/]/g, '');
-      if (newValue.length >= 2 && !newValue.includes('/')) {
-        newValue = newValue.slice(0, 2) + '/' + newValue.slice(2);
-      }
-      if (newValue.length >= 5 && newValue.split('/').length === 2) {
-        newValue = newValue.slice(0, 5) + '/' + newValue.slice(5, 9);
-      }
-      newValue = newValue.slice(0, 10);
-      break;
+      case 'email':
+        // No necesita transformación especial
+        break;
 
-    default:
-      break;
-  }
+      case 'fecha_nacimiento':
+        // Asegurarse de que sea una fecha válida
+        break;
 
-  setFormData(prevData => ({
-    ...prevData,
-    [name]: newValue
-  }));
+      default:
+        break;
+    }
 
-  // Validar campos después de la actualización
-  validateField(name, newValue);
-};
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: newValue
+    }));
 
-const validateField = (name, value) => {
-  let error = '';
+    validateField(name, newValue);
+  };
 
-  switch (name) {
-    case 'nombre':
-      if (!value.trim()) {
-        error = 'El nombre es requerido';
-      }
-      break;
+  const validateField = (name, value) => {
+    let error = '';
 
-    case 'dni':
-      if (value.length !== 8) {
-        error = 'El DNI debe tener 8 dígitos';
-      }
-      break;
-
-    case 'celular':
-      if (value.length !== 10) {
-        error = 'El celular debe tener 10 dígitos';
-      }
-      break;
-
-    case 'fechaNacimiento':
-      if (value.length !== 10) {
-        error = 'Ingrese una fecha válida (DD/MM/YYYY)';
-      } else {
-        const [day, month, year] = value.split('/').map(Number);
-        const date = new Date(year, month - 1, day);
-        const today = new Date();
-
-        if (date > today || year < 1900 || month > 12 || day > 31) {
-          error = 'Fecha inválida';
+    switch (name) {
+      case 'nombre':
+      case 'apellido':
+        if (!value.trim()) {
+          error = `El ${name} es requerido`;
+        } else if (value.length < 2) {
+          error = `El ${name} debe tener al menos 2 caracteres`;
         }
-      }
-      break;
+        break;
 
-    default:
-      break;
-  }
+      case 'dni':
+        if (!value) {
+          error = 'El DNI es requerido';
+        } else if (value.length !== 8) {
+          error = 'El DNI debe tener 8 dígitos';
+        }
+        break;
 
-  setErrors(prevErrors => ({
-    ...prevErrors,
-    [name]: error
-  }));
-};
+      case 'telefono':
+        if (!value) {
+          error = 'El teléfono es requerido';
+        } else if (value.length !== 10) {
+          error = 'El teléfono debe tener 10 dígitos';
+        }
+        break;
 
-// Verificar si todos los campos son válidos
-useEffect(() => {
-  const formIsValid =
-    formData.nombre.trim() !== '' &&
-    formData.dni.length === 8 &&
-    formData.celular.length === 10 &&
-    formData.fechaNacimiento.length === 10 &&
-    !Object.values(errors).some(error => error !== '');
+      case 'email':
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!value) {
+          error = 'El email es requerido';
+        } else if (!emailRegex.test(value)) {
+          error = 'Ingrese un email válido';
+        }
+        break;
 
-  setIsValid(formIsValid);
-}, [formData, errors]);
+      case 'fecha_nacimiento':
+        if (!value) {
+          error = 'La fecha de nacimiento es requerida';
+        } else {
+          const date = new Date(value);
+          const today = new Date();
+          if (date > today) {
+            error = 'La fecha no puede ser futura';
+          } else {
+            const age = today.getFullYear() - date.getFullYear();
+            if (age < 16) {
+              error = 'Debe ser mayor de 16 años';
+            }
+          }
+        }
+        break;
 
-const handleSubmit = () => {
-  if (isValid) {
-    onConfirm(formData);
-    onRequestClose();
-    window.notyf.success("Turno agendado!!")
-    setFormData({
-      nombre: '',
-      dni: '',
-      celular: '',
-      fechaNacimiento: ''
-    })
-  }
-};
+      default:
+        break;
+    }
 
-const inputStyle = "w-full p-2 rounded-lg outline-none bg-[#267447] shadow-inner text-center font-julius";
+    setErrors(prevErrors => ({
+      ...prevErrors,
+      [name]: error
+    }));
+  };
 
-return (
+  useEffect(() => {
+    const formIsValid =
+      formData.nombre.trim() !== '' &&
+      formData.apellido.trim() !== '' &&
+      formData.dni.length === 8 &&
+      formData.telefono.length === 10 &&
+      formData.email &&
+      formData.fecha_nacimiento &&
+      !Object.values(errors).some(error => error !== '');
 
-  <Modal
-    className={`w-full ${window.innerWidth <= 561 ? 'max-w-[90%]' : 'max-w-[600px]'} h-[500px] movil-sm:h-[450px]`}
-    isOpen={isOpen}
-    onRequestClose={onRequestClose}
-    contentLabel="Detalles del Turno"
-    style={{
-      overlay: {
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      },
-      content: {
+    setIsValid(formIsValid);
+  }, [formData, errors]);
 
-        top: "200px",
-        borderRadius: '20px',
-        width: '600px',
-        height: "500px",
+  const handleSubmit = () => {
+    if (isValid) {
+      // Formatear los datos según el modelo
+      const clienteData = {
+        nombre: formData.nombre.trim(),
+        apellido: formData.apellido.trim(),
+        dni: formData.dni,
+        telefono: formData.telefono,
+        email: formData.email.toLowerCase(),
+        fecha_nacimiento: new Date(formData.fecha_nacimiento).toISOString(),
+        genero: formData.genero || 'No especificado'
+      };
 
-        margin: 'auto',
-        padding: '20px',
-        backgroundColor: "#1e5e39",
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        border: 'none',
-        position: 'relative',
-      },
-    }}
-  >
-    <button
-      className="absolute top-4 right-4 text-opacity-70 w-7 h-7 text-[13px] rounded-md shadow flex justify-center items-center"
-      onClick={onRequestClose}
+      onConfirm(clienteData);
+      onRequestClose();
+      window.notyf.success("¡Turno agendado!");
+      setFormData({
+        nombre: '',
+        apellido: '',
+        dni: '',
+        telefono: '',
+        email: '',
+        genero: '',
+        fecha_nacimiento: ''
+      });
+    }
+  };
+
+  const inputStyle = "w-full p-2 rounded-lg outline-none bg-[#267447] shadow-inner text-center font-julius";
+
+  return (
+    <Modal
+      className={`w-full ${window.innerWidth <= 561 ? 'max-w-[90%]' : 'max-w-[600px]'} h-auto min-h-[500px] movil-sm:h-[450px]`}
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      contentLabel="Detalles del Turno"
+      style={{
+        overlay: {
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        },
+        content: {
+          top: "50%",
+          left: "50%",
+          right: "auto",
+          bottom: "auto",
+          transform: "translate(-50%, -50%)",
+          borderRadius: '20px',
+          backgroundColor: "#1e5e39",
+          padding: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          border: 'none',
+        },
+      }}
     >
-      ✕
-    </button>
+      <button
+        className="absolute top-4 right-4 text-[#e0e0e0] text-opacity-70 w-7 h-7 text-[13px] rounded-md shadow flex justify-center items-center hover:text-opacity-100"
+        onClick={onRequestClose}
+      >
+        ✕
+      </button>
 
-    <h2 className="font-julius text-3xl mb-2 text-center text-[#e0e0e0]">
-      DATOS
-    </h2>
+      <h2 className="font-julius text-3xl mb-2 text-center text-[#e0e0e0]">
+        DATOS PERSONALES
+      </h2>
 
-    <p className="font-julius text-sm mb-5 text-center text-[#e0e0e0]">
-      POR FAVOR INGRESE SUS DATOS
-    </p>
+      <div className="w-full space-y-4 text-[#e0e0e0]">
+        <div className="flex justify-around gap-4">
+          <div className="flex flex-col w-1/2">
+            <label className="font-julius mb-1">NOMBRE</label>
+            <input
+              className={inputStyle}
+              type="text"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleInputChange}
+              placeholder=""
+            />
+            {errors.nombre && <span className="text-xs mt-1 text-red-300">{errors.nombre}</span>}
+          </div>
+          <div className="flex flex-col w-1/2">
+            <label className="font-julius mb-1">APELLIDO</label>
+            <input
+              className={inputStyle}
+              type="text"
+              name="apellido"
+              value={formData.apellido}
+              onChange={handleInputChange}
+              placeholder=""
+            />
+            {errors.apellido && <span className="text-xs mt-1 text-red-300">{errors.apellido}</span>}
+          </div>
+        </div>
 
-    <div className="flex w-full justify-around mb-4 text-[#e0e0e0]">
-      <div className="flex flex-col items-center w-[45%]">
-        <label className="font-julius mb-1">NOMBRE</label>
-        <input
-          className={inputStyle}
-          type="text"
-          name="nombre"
-          value={formData.nombre}
-          onChange={handleInputChange}
-          autoComplete="off"
-          placeholder=""
-        />
-        {errors.nombre && <span className=" text-xs mt-1">{errors.nombre}</span>}
+        <div className="flex justify-around gap-4">
+          <div className="flex flex-col w-1/2">
+            <label className="font-julius mb-1">DNI</label>
+            <input
+              className={inputStyle}
+              type="text"
+              name="dni"
+              value={formData.dni}
+              onChange={handleInputChange}
+              placeholder=""
+            />
+            {errors.dni && <span className="text-xs mt-1 text-red-300">{errors.dni}</span>}
+          </div>
+          <div className="flex flex-col w-1/2">
+            <label className="font-julius mb-1">TELÉFONO</label>
+            <input
+              className={inputStyle}
+              type="text"
+              name="telefono"
+              value={formData.telefono}
+              onChange={handleInputChange}
+              placeholder=""
+            />
+            {errors.telefono && <span className="text-xs mt-1 text-red-300">{errors.telefono}</span>}
+          </div>
+        </div>
+
+        <div className="flex justify-around gap-4">
+          <div className="flex flex-col w-1/2">
+            <label className="font-julius mb-1">EMAIL</label>
+            <input
+              className={inputStyle}
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder=""
+            />
+            {errors.email && <span className="text-xs mt-1 text-red-300">{errors.email}</span>}
+          </div>
+          <div className="flex flex-col w-1/2">
+            <label className="font-julius mb-1">FECHA DE NACIMIENTO</label>
+            <input
+              className={inputStyle}
+              type="date"
+              name="fecha_nacimiento"
+              value={formData.fecha_nacimiento}
+              onChange={handleInputChange}
+              placeholder=""
+            />
+            {errors.fecha_nacimiento && <span className="text-xs mt-1 text-red-300">{errors.fecha_nacimiento}</span>}
+          </div>
+        </div>
+
+        <div className="flex flex-col">
+          <label className="font-julius mb-1">GÉNERO</label>
+          <select
+            className={inputStyle}
+            name="genero"
+            value={formData.genero}
+            onChange={handleInputChange}
+          >
+            <option value="">Seleccione un género</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+
+        <p className="font-julius text-sm text-center">
+          TURNO PARA EL DÍA {selectedDate}
+        </p>
+
+        <p className="font-julius text-xs text-center">
+          ANTE CUALQUIER CAMBIO DE HORARIO O CANCELACIÓN DE TURNO AVISAR MÍNIMO CON UN DÍA DE ANTICIPACIÓN
+        </p>
+
+        <div className="flex justify-center">
+          <button
+            className={`font-julius rounded-md shadow w-[150px] border border-[#e0e0e0] hover:scale-105 transition-transform duration-300 text-[#e0e0e0] p-2 ${
+              isValid ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+            }`}
+            onClick={handleSubmit}
+            disabled={!isValid}
+          >
+            ACEPTAR
+          </button>
+        </div>
       </div>
-      <div className="flex flex-col items-center w-[45%] ">
-        <label className="font-julius mb-1">DNI</label>
-        <input
-          className={inputStyle}
-          type="text"
-          name="dni"
-          value={formData.dni}
-          onChange={handleInputChange}
-          autoComplete="off"
-          placeholder=""
-        />
-        {errors.dni && <span className=" text-xs mt-1">{errors.dni}</span>}
-      </div>
-    </div>
-
-    <div className="flex w-full justify-around mb-5 text-[#e0e0e0]">
-      <div className="flex flex-col items-center w-[45%]">
-        <label className="font-julius mb-1">CELULAR</label>
-        <input
-          className={inputStyle}
-          type="text"
-          name="celular"
-          value={formData.celular}
-          onChange={handleInputChange}
-          autoComplete="off"
-          placeholder=""
-        />
-        {errors.celular && <span className=" text-xs mt-1">{errors.celular}</span>}
-      </div>
-      <div className="flex flex-col items-center w-[45%] ">
-        <label className="font-julius mb-1">FECHA DE NAC</label>
-        <input
-          className={inputStyle}
-          type="text"
-          name="fechaNacimiento"
-          value={formData.fechaNacimiento}
-          onChange={handleInputChange}
-          autoComplete="off"
-          placeholder=""
-        />
-        {errors.fechaNacimiento && <span className="text-xs mt-1">{errors.fechaNacimiento}</span>}
-      </div>
-    </div>
-
-    <p className="font-julius text-sm mb-5 text-center text-[#e0e0e0]">
-      TURNO PARA EL DIA {selectedDate}
-    </p>
-
-    <p className="font-julius text-xs mb-5 text-center text-[#e0e0e0]">
-      ANTE CUALQUIER CAMBIO DE HORARIO O CANCELACION DE TURNO AVISAR MINIMO CON UN DIA DE ANTICIPACION
-    </p>
-
-    <button
-      className={`font-julius rounded-md shadow w-[150px] border border-[#e0e0e0] hover:scale-105 transition-transform duration-300 text-[#e0e0e0] p-2 ${isValid
-        ? ' cursor-pointer'
-        : ' cursor-not-allowed'
-        }`}
-      onClick={handleSubmit}
-      disabled={!isValid}
-    >
-      ACEPTAR
-    </button>
-  </Modal>
-
-);
+    </Modal>
+  );
 };
 
 export default TurnosInfo;

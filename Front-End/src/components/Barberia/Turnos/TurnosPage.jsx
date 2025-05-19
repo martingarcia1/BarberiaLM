@@ -136,6 +136,17 @@ const TurnosPage = () => {
 
   // MODIFICAR: handleDateClick para generar horarios para la fecha seleccionada
   const handleDateClick = ({ fecha }) => {
+    // Verificar si el servicio está en el carrito antes de proceder
+    const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    const servicioEnCarrito = carrito.find(item => 
+      item.name.toLowerCase() === servicio.toLowerCase()
+    );
+
+    if (!servicioEnCarrito) {
+      toast.error('El servicio no está en el carrito. Por favor, agregue el servicio primero.');
+      return;
+    }
+
     setSelectedDate(formatearFecha(fecha));
     setSelectedTurno({ fecha });
     // Generar horarios para ese día
@@ -144,7 +155,11 @@ const TurnosPage = () => {
   };
 
   const handleTimeSelect = (hora) => {
-    // Al seleccionar un horario, abrir el modal de reserva directamente
+    if (!servicio) {
+      toast.error('Por favor, seleccione un servicio primero');
+      return;
+    }
+    
     setHorarioSeleccionado(hora);
     setDiaSeleccionado(selectedTurno.fecha.toISOString().split('T')[0]);
     setHorariosModal(false);

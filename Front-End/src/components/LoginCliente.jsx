@@ -17,14 +17,27 @@ export default function LoginCliente() {
         email,
         contrasena
       });
-      if (response.status === 200) {
+
+      if (response.data.message === 'Login exitoso') {
+        // Guardar token
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('tipoUsuario', 'cliente');
+        localStorage.setItem('cliente_id', response.data.cliente.id);
+        
+        // Guardar datos del usuario
+        const userData = {
+          nombre: response.data.cliente.nombre,
+          email: response.data.cliente.email,
+          id: response.data.cliente.id
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+        
         notyf.success("¡Bienvenido!");
         navigate('/cliente/dashboard');
       }
-    } catch {
-      notyf.error("Email o Contraseña incorrectos");
+    } catch (error) {
+      console.error('Error de login:', error);
+      notyf.error(error.response?.data?.message || "Email o Contraseña incorrectos");
     }
   };
 
@@ -36,4 +49,4 @@ export default function LoginCliente() {
       <button type="submit" className="btn">Ingresar</button>
     </form>
   );
-} 
+}

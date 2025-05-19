@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
+import { Notyf } from 'notyf';
+import 'notyf/notyf.min.css';
 
 const NuevoEmpleado = ({ onClose }) => {
   const [form, setForm] = useState({
@@ -12,8 +14,14 @@ const NuevoEmpleado = ({ onClose }) => {
     email: '',
     especialidad: '',
     salario: '',
-    contraseña: '',
+    contrasena: '',
     estado: 'activo'
+  });
+
+  const [error, setError] = useState('');
+  const notyf = new Notyf({
+    duration: 3000,
+    position: { x: 'right', y: 'top' },
   });
 
   const handleChange = (e) => {
@@ -26,11 +34,26 @@ const NuevoEmpleado = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     try {
-      await axios.post('http://localhost:3001/api/empleados', form);
-      onClose();
+      // Validaciones básicas
+      if (!form.nombre || !form.apellido || !form.email || !form.contrasena || !form.salario) {
+        setError('Por favor completa todos los campos requeridos');
+        return;
+      }
+
+      const response = await axios.post('http://localhost:3001/api/empleados', form);
+      
+      if (response.data.success) {
+        notyf.success('Empleado registrado exitosamente');
+        onClose();
+      }
     } catch (error) {
       console.error('Error al crear empleado:', error);
+      const mensajeError = error.response?.data?.message || 'Error al crear el empleado';
+      setError(mensajeError);
+      notyf.error(mensajeError);
     }
   };
 
@@ -46,10 +69,15 @@ const NuevoEmpleado = ({ onClose }) => {
           &times;
         </button>
       </div>
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
         <div className="space-y-4">
           <div>
-            <label className="block text-gray-600 mb-1">Nombre</label>
+            <label className="block text-gray-600 mb-1">Nombre *</label>
             <input 
               name="nombre" 
               className="w-full border rounded px-3 py-2" 
@@ -59,7 +87,7 @@ const NuevoEmpleado = ({ onClose }) => {
             />
           </div>
           <div>
-            <label className="block text-gray-600 mb-1">Apellido</label>
+            <label className="block text-gray-600 mb-1">Apellido *</label>
             <input 
               name="apellido" 
               className="w-full border rounded px-3 py-2" 
@@ -80,7 +108,7 @@ const NuevoEmpleado = ({ onClose }) => {
         </div>
         <div className="space-y-4">
           <div>
-            <label className="block text-gray-600 mb-1">Correo</label>
+            <label className="block text-gray-600 mb-1">Correo *</label>
             <input 
               name="email" 
               type="email"
@@ -100,7 +128,7 @@ const NuevoEmpleado = ({ onClose }) => {
             />
           </div>
           <div>
-            <label className="block text-gray-600 mb-1">Salario</label>
+            <label className="block text-gray-600 mb-1">Salario *</label>
             <input 
               name="salario" 
               type="number"
@@ -114,12 +142,12 @@ const NuevoEmpleado = ({ onClose }) => {
         </div>
         <div className="space-y-4 col-span-1 md:col-span-2">
           <div>
-            <label className="block text-gray-600 mb-1">Contraseña</label>
+            <label className="block text-gray-600 mb-1">Contraseña *</label>
             <input 
-              name="contraseña" 
+              name="contrasena"
               type="password" 
               className="w-full border rounded px-3 py-2" 
-              value={form.contraseña} 
+              value={form.contrasena} 
               onChange={handleChange} 
               required 
             />

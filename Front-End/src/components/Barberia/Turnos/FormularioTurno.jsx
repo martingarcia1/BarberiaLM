@@ -34,29 +34,42 @@ const FormularioTurno = () => {
     const [fechasDisponibles, setFechasDisponibles] = useState([]);
 
     useEffect(() => {
-        // Leer el servicio del query string
+        // Verificar si el servicio está en el carrito
         const params = new URLSearchParams(location.search);
-        const servicioQS = params.get('servicio');
-        setServicioNombre(servicioQS || '');
-    }, [location.search]);
+        const servicioParam = params.get('servicio');
+        const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+        const servicioEnCarrito = carrito.find(item => 
+            item.name.toLowerCase() === servicioParam?.toLowerCase()
+        );
 
-    useEffect(() => {
-        // Cargar servicios y empleados
+        if (!servicioParam || !servicioEnCarrito) {
+            toast.error('Por favor, selecciona y agrega un servicio al carrito primero');
+            navigate('/servicios');
+            return;
+        }
+
+        setServicioNombre(servicioParam);
+
+        // Cargar servicios
         const cargarServicios = async () => {
             try {
                 const response = await axios.get(`${url.urlKey}/api/servicios`);
                 setServicios(response.data);
-                // Si hay un servicio en el query string, preseleccionarlo
-                if (servicioNombre) {
-                    const servicioEncontrado = response.data.find(s => s.nombre_servicio.toLowerCase() === servicioNombre.toLowerCase());
-                    if (servicioEncontrado) {
-                        setFormData(prev => ({ ...prev, servicio_id: servicioEncontrado.id }));
-                    }
+                const servicioEncontrado = response.data.find(s => 
+                    s.nombre_servicio.toLowerCase() === servicioParam.toLowerCase()
+                );
+                if (servicioEncontrado) {
+                    setFormData(prev => ({ ...prev, servicio_id: servicioEncontrado.id }));
                 }
-            } catch {
+            } catch (error) {
                 toast.error('Error al cargar los servicios');
             }
         };
+        cargarServicios();
+    }, [location.search, navigate]);
+
+    useEffect(() => {
+        // Cargar empleados
         const cargarEmpleados = async () => {
             try {
                 const response = await axios.get(`${url.urlKey}/api/empleados`);
@@ -65,9 +78,8 @@ const FormularioTurno = () => {
                 toast.error('Error al cargar los barberos disponibles');
             }
         };
-        cargarServicios();
         cargarEmpleados();
-    }, [servicioNombre]);
+    }, []);
 
     const generarHorarios = () => {
         const horariosDisponibles = [];
@@ -136,21 +148,25 @@ const FormularioTurno = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Validar campos obligatorios
         if (!formData.cliente_id || !formData.empleado_id || !formData.servicio_id || !formData.fecha_hora) {
-            toast.error('Completa todos los campos obligatorios');
+            toast.error('Por favor completa todos los campos requeridos');
             return;
         }
+
         try {
-            await axios.post(`${url.urlKey}/api/citas`, {
-                cliente_id: formData.cliente_id,
-                empleado_id: formData.empleado_id,
-                servicio_id: formData.servicio_id,
-                fecha_hora: formData.fecha_hora,
-                observaciones: formData.observaciones,
-                pagado_con_puntos: formData.pagado_con_puntos,
-                estado: formData.estado
-            });
+            const response = await axios.post(`${url.urlKey}/api/citas`, formData);
+            
+            // Actualizar el carrito removiendo el servicio reservado
+            const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            const nuevoCarrito = carrito.filter(item => 
+                item.name.toLowerCase() !== servicioNombre.toLowerCase()
+            );
+            localStorage.setItem('carrito', JSON.stringify(nuevoCarrito));
+
+            // Disparar evento para actualizar contador del carrito
+            const event = new CustomEvent('updateCartCounter');
+            window.dispatchEvent(event);
+
             toast.success('Turno reservado con éxito');
             navigate('/turnos');
         } catch (error) {
@@ -276,4 +292,4 @@ const FormularioTurno = () => {
     );
 };
 
-export default FormularioTurno; 
+export default FormularioTurno;

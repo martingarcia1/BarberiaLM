@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import PropTypes from 'prop-types';
 import url from "../../../utils/url.js"
-import { FaKey } from "react-icons/fa";
 
-const Carrito = ({ cartOpen, setCartOpen, SetNotifiqueishon, setContadorProd }) => {
+const Carrito = ({ cartOpen, setCartOpen, setContadorProd }) => {
     const [productos, setProductos] = useState([]);
     const [currentStep, setCurrentStep] = useState(1); // 1: Productos, 2: Registro, 3: MercadoPago
     const [nombre, setNombre] = useState("")
@@ -11,7 +11,6 @@ const Carrito = ({ cartOpen, setCartOpen, SetNotifiqueishon, setContadorProd }) 
     const [metodoPago, setMetodoPago] = useState("efectivo"); // Nuevo estado para método de pago
     const [errorTel, setErrorTel] = useState(false)
     const [botonMercadoPago, setBotonMercadoPago] = useState("https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=")
-    const token = localStorage.getItem("token")
 
 
     const manejarClick = () => {
@@ -107,17 +106,23 @@ const Carrito = ({ cartOpen, setCartOpen, SetNotifiqueishon, setContadorProd }) 
 
             // Solo procesar pedido si hay productos normales
             if (productos_normales.length > 0) {
-                const respuestaPedido = await axios.post(
-                    `${url.urlKey}/api/pedido/save`,
-                    {
-                        nombreCliente: nombre,
-                        celularCliente: celular,
-                        metodoPago: metodoPago,
-                        productosList: productos_normales.flatMap(prod => Array(prod.cantidad).fill(prod.ingId).flat()),
-                        fecha: new Intl.DateTimeFormat('fr-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date()),
-                        listaEnsaladas: productos_normales.map(prod => prod.name)
-                    }
-                );
+                try {
+                    await axios.post(
+                        `${url.urlKey}/api/pedido/save`,
+                        {
+                            nombreCliente: nombre,
+                            celularCliente: celular,
+                            metodoPago: metodoPago,
+                            productosList: productos_normales.flatMap(prod => Array(prod.cantidad).fill(prod.ingId).flat()),
+                            fecha: new Intl.DateTimeFormat('fr-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date()),
+                            listaEnsaladas: productos_normales.map(prod => prod.name)
+                        }
+                    );
+                    window.notyf.success('Pedido guardado correctamente');
+                } catch (error) {
+                    window.notyf.error('Error al guardar el pedido');
+                    throw error;
+                }
             }
 
             // Mantener solo servicios en el carrito
@@ -175,17 +180,23 @@ const Carrito = ({ cartOpen, setCartOpen, SetNotifiqueishon, setContadorProd }) 
 
     return (
         <div
-            className={`fixed top-0 right-0 w-[450px] movil-smm:w-[350px] h-full bg-[#1e5e39] shadow-lg transform ${cartOpen ? "translate-x-0" : "translate-x-full"
-                } transition-transform duration-300 ease-in-out z-20`}
+            className={`fixed top-0 right-0 w-[450px] movil-smm:w-[350px] h-full bg-[#2b1c16] shadow-lg transform ${cartOpen ? "translate-x-0" : "translate-x-full"
+                } transition-transform duration-300 ease-in-out z-20 bg-opacity-95`}
+            style={{
+                backgroundImage: `url('/img/background.jpeg')`,
+                backgroundSize: '200px',
+                backgroundRepeat: 'repeat',
+                backdropFilter: 'blur(5px)'
+            }}
         >
             <div className="p-4 font-julius">
                 <button
-                    className="text-black text-opacity-70 float-right w-7 h-7 text-[13px] rounded-md shadow shadow-gray-900 hover:scale-105 transition-transform duration-300"
+                    className="text-[#f0d3a7] float-right w-7 h-7 text-[15px] font-bold rounded-md shadow-md bg-[#3c2920] hover:bg-[#4e352a] hover:scale-105 transition-all duration-300"
                     onClick={() => setCartOpen(false)}
                 >
                     ✕
                 </button>
-                <h2 className="text-2xl font-julius mb-4 text-center ">
+                <h2 className="text-2xl font-julius mb-4 text-center text-[#f0d3a7]">
                     {currentStep === 1 ? "Carrito" : currentStep === 2 ? "Registro" : "Pago"}
                 </h2>
 
@@ -195,7 +206,7 @@ const Carrito = ({ cartOpen, setCartOpen, SetNotifiqueishon, setContadorProd }) 
                         {productos.map((producto, index) => (
                             <div id="Estructuracarta" key={index} className="flex -ml-[5px] mb-2 rounded-lg shadow justify-between items-center h-[120px] border border-[#0A4B2E] w-[430px] text-[#e0e0e0]">
                                 <div className="ml-1">
-                                    <img className="rounded-md " src={producto.img} alt="ensalada" width="80px" />
+                                    <img className="rounded-md " src={producto.img} alt="e" width="80px" />
                                 </div>
 
                                 <div id="PPPPP" className="">
@@ -231,33 +242,48 @@ const Carrito = ({ cartOpen, setCartOpen, SetNotifiqueishon, setContadorProd }) 
                         </div>
                     </div>
                 ) : currentStep === 1 ? (
-                    <p className='font-julius'>No hay productos en el carrito.</p>
+                    <p className='font-julius text-[#f0d3a7] text-center text-lg'>No hay productos en el carrito.</p>
                 ) : null}
 
                 {/* Paso 2: Registro */}
                 {currentStep === 2 && (
-                    <div>
-                        <div id="Registro" className="inputs text-center mt-6 font-julius">
-                            <h3 className="mb-4 text-xl text-[#e0e0e0] font-bold">Por favor ingrese sus datos</h3>
+                    <div className="bg-[#2b1c16] rounded-lg p-6 shadow-lg">
+                        <div id="Registro" className="inputs space-y-6 font-julius">
+                            <h3 className="text-2xl text-[#f0d3a7] font-bold text-center mb-8">Datos del Cliente</h3>
 
-                            <h3 className="text-xl mb-2 text-[#e0e0e0]">Nombre</h3>
-                            <input  onChange={(e) => setNombre(e.target.value)} className="rounded-lg outline-none bg-[#267447] shadow-inner h-[35px] w-[250px] text-center" type="text" value={nombre} />
-
-                            <div className="text-[#e0e0e0]">
-
-                                <h3 className="mt-4 text-xl mb-2">Numero de celular</h3>
-                                <div className="flex flex-col justify-center items-center">
-                                    <input onChange={(e) => validarCelular(e)} className="rounded-lg outline-none h-[35px] bg-[#267447] shadow-inner w-[250px] text-center " type="text" value={celular} />
-                                    {errorTel && <span className="font-sans text-[13px]">Debe tener 10 digitos</span>}
-                                </div>
+                            <div className="relative">
+                                <label className="text-lg text-[#f0d3a7] mb-2 block">Nombre</label>
+                                <input 
+                                    onChange={(e) => setNombre(e.target.value)} 
+                                    className="w-full px-4 py-2 rounded-lg outline-none bg-[#3c2920] shadow-lg text-[#f0d3a7] border border-[#66463a] focus:border-[#8b5b4c] transition-colors duration-300" 
+                                    type="text" 
+                                    value={nombre}
+                                    placeholder="Ingrese su nombre"
+                                />
                             </div>
 
-                            <div className="mt-4">
-                                <h3 className="text-xl mb-2 text-[#e0e0e0]">Método de pago</h3>
+                            <div className="relative">
+                                <label className="text-lg text-[#f0d3a7] mb-2 block">Número de celular</label>
+                                <input 
+                                    onChange={(e) => validarCelular(e)} 
+                                    className={`w-full px-4 py-2 rounded-lg outline-none bg-[#3c2920] shadow-lg text-[#f0d3a7] border ${errorTel ? 'border-red-500' : 'border-[#66463a]'} focus:border-[#8b5b4c] transition-colors duration-300`}
+                                    type="text" 
+                                    value={celular}
+                                    placeholder="Ingrese su número de celular" 
+                                />
+                                {errorTel && (
+                                    <span className="text-red-400 text-sm mt-1 block">
+                                        El número debe tener 10 dígitos
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="relative">
+                                <label className="text-lg text-[#f0d3a7] mb-2 block">Método de pago</label>
                                 <select
                                     value={metodoPago}
                                     onChange={(e) => setMetodoPago(e.target.value)}
-                                    className="rounded-lg outline-none h-[35px] bg-[#267447] shadow-inner w-[250px] text-center text-[#e0e0e0]"
+                                    className="w-full px-4 py-2 rounded-lg outline-none bg-[#3c2920] shadow-lg text-[#f0d3a7] border border-[#66463a] focus:border-[#8b5b4c] transition-colors duration-300 appearance-none cursor-pointer"
                                 >
                                     <option value="efectivo">Efectivo</option>
                                     <option value="mercadopago">MercadoPago</option>
@@ -266,21 +292,20 @@ const Carrito = ({ cartOpen, setCartOpen, SetNotifiqueishon, setContadorProd }) 
                                 </select>
                             </div>
 
-                        </div>
-
-                        <div className="flex justify-between mt-6 movil-smm:gap-2">
-                            <button
-                                onClick={handleBack}
-                                className=" relative text-[#e0e0e0] w-48 h-12  border border-[#e0e0e0] hover:scale-105  transition-transform rounded-lg  duration-300 focus:outline-none"
-                            >
-                                Volver
-                            </button>
-                            <button
-                                onClick={() => {if(celular.length==10){handleNext("Finalizar Pedido")}else{setErrorTel(true)}}}
-                                className="relative text-[#e0e0e0] w-48 h-12 border border-[#e0e0e0] hover:scale-105  transition-transform rounded-lg duration-300 focus:outline-none"
-                            >
-                                Finalizar Pedido
-                            </button>
+                            <div className="flex justify-between mt-8 gap-4">
+                                <button
+                                    onClick={handleBack}
+                                    className="flex-1 py-3 px-6 text-[#f0d3a7] border border-[#66463a] rounded-lg hover:bg-[#3c2920] transition-colors duration-300 focus:outline-none"
+                                >
+                                    Volver
+                                </button>
+                                <button
+                                    onClick={() => {if(celular.length==10){handleNext("Finalizar Pedido")}else{setErrorTel(true)}}}
+                                    className="flex-1 py-3 px-6 text-[#f0d3a7] bg-[#3c2920] border border-[#66463a] rounded-lg hover:bg-[#2b1c16] transition-colors duration-300 focus:outline-none"
+                                >
+                                    Finalizar Pedido
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -289,8 +314,8 @@ const Carrito = ({ cartOpen, setCartOpen, SetNotifiqueishon, setContadorProd }) 
                 {currentStep === 3 && (
                     <div>
                         <div id="MercadoPago" className="flex flex-col items-center mt-10">
-                            <span className="text-[12px] mb-1 text-[#e0e0e0]">De click para ir a Mercado Pago</span>
-                            {botonMercadoPago == "https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=" ? <p className="font-bold ">Cargando...</p>
+                            <span className="text-[12px] mb-1 text-[#f0d3a7]">De click para ir a Mercado Pago</span>
+                            {botonMercadoPago == "https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=" ? <p className="font-bold text-[#f0d3a7]">Cargando...</p>
                                 : <>
                                     <button
                                         onClick={() => {
@@ -327,5 +352,11 @@ const Carrito = ({ cartOpen, setCartOpen, SetNotifiqueishon, setContadorProd }) 
         </div>
     );
 }
+
+Carrito.propTypes = {
+    cartOpen: PropTypes.bool.isRequired,
+    setCartOpen: PropTypes.func.isRequired,
+    setContadorProd: PropTypes.func.isRequired
+};
 
 export default Carrito;

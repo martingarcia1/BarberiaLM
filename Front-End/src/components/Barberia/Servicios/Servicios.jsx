@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ServiciosInfo from './ServiciosInfo';
 import Modal from 'react-modal';
 import Footer from '../Home/Footer';
@@ -7,6 +7,12 @@ Modal.setAppElement('#root');
 
 const Servicios = () => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [productosEnCarrito, setProductosEnCarrito] = useState([]);
+
+    useEffect(() => {
+        const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+        setProductosEnCarrito(carrito);
+    }, []);
 
     const servicios = [
         {
@@ -136,36 +142,29 @@ const Servicios = () => {
     };
 
     const agregarAlCarrito = (producto) => {
-        let bandera = true;
-        const productosEnCarrito = JSON.parse(localStorage.getItem("carrito")) || [];
-        const existeEnCarrito = productosEnCarrito.find(item => item.name === producto.name);
-        
+        const existeEnCarrito = productosEnCarrito.some(item => item.name === producto.name);
+
         if (!existeEnCarrito) {
             const servicioParaCarrito = {
                 id: producto.id,
                 name: producto.name,
                 price: producto.price,
                 duracion: producto.duracion,
-                tipo: 'servicio', // Identificador para distinguir servicios de productos
+                img: producto.img,
+                tipo: 'servicio',
                 carrito: true,
                 cantidad: 1
             };
             const nuevosProductos = [...productosEnCarrito, servicioParaCarrito];
+            setProductosEnCarrito(nuevosProductos);
             localStorage.setItem("carrito", JSON.stringify(nuevosProductos));
-            window.location.href = `/turnos/lunes?servicio=${encodeURIComponent(producto.name)}`;
+            window.location.href = `/turnos/lunes?servicio=${encodeURIComponent(servicioParaCarrito.name)}`;
         } else {
-            const nuevosProductos = productosEnCarrito.map(item => {
-                if (item.name === producto.name && item.cantidad < 10) {
-                    return { ...item, cantidad: item.cantidad + 1 };
-                }
-                return item;
-            });
-            localStorage.setItem("carrito", JSON.stringify(nuevosProductos));
             window.location.href = `/turnos/lunes?servicio=${encodeURIComponent(producto.name)}`;
         }
+
         const event = new CustomEvent('updateCartCounter');
         window.dispatchEvent(event);
-        return bandera;
     };
 
     return (

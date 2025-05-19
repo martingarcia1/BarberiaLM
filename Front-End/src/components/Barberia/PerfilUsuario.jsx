@@ -1,40 +1,55 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from "react-router-dom";
-
-const datosIniciales = JSON.parse(localStorage.getItem('user')) || {
-  nombre: 'Sergio',
-  apellido: 'Martín García',
-  email: 'martingarcia.code@gmail.com',
-  telefono: '+543813487804',
-  dni: '45120211',
-  genero: 'Masculino',
-  fechaNacimiento: '2003-01-10',
-  password: '********',
-  nivel: 'Bronce',
-  puntos: 120,
-};
-
-const historialEjemplo = [
-  { id: 1, fecha: '2024-05-01', servicio: 'Corte de Cabello', puntos: 20, total: '$2000' },
-  { id: 2, fecha: '2024-04-15', servicio: 'Afeitado', puntos: 10, total: '$1000' },
-];
+import axios from 'axios';
+import { isTokenvalid } from "../../utils/isTokenValid";
 
 const PerfilUsuario = () => {
-  const [datos, setDatos] = useState(datosIniciales);
+  const [datos, setDatos] = useState({});
   const [modalAbierto, setModalAbierto] = useState(false);
-  const [form, setForm] = useState(datosIniciales);
-  const [historial] = useState(historialEjemplo);
+  const [form, setForm] = useState({});
+  const [historial, setHistorial] = useState([]);
   const [feedback, setFeedback] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const clienteId = localStorage.getItem('cliente_id');
+    const tipoUsuario = localStorage.getItem('tipoUsuario');
+    
+    if (!token || !clienteId || !isTokenvalid(token) || tipoUsuario !== 'cliente') {
+      localStorage.clear();
+      navigate('/login/cliente');
+      return;
+    }
+
+    const cargarDatosUsuario = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/api/clientes/${clienteId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.data) {
+          setDatos(response.data);
+          setForm(response.data);
+        }
+      } catch (error) {
+        console.error('Error al cargar datos:', error);
+        if (error.response?.status === 401) {
+          localStorage.clear();
+          navigate('/login/cliente');
+        }
+      }
+    };
+
+    cargarDatosUsuario();
+  }, [navigate]);
+
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('tipoUsuario');
+    localStorage.clear();
     navigate('/');
   };
 
   const abrirModal = () => {
-    setForm(datos); // Cargar datos actuales al formulario
+    setForm(datos);
     setModalAbierto(true);
   };
 
@@ -47,14 +62,31 @@ const PerfilUsuario = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleGuardar = (e) => {
+  const handleGuardar = async (e) => {
     e.preventDefault();
-    setDatos(form);
-    localStorage.setItem('user', JSON.stringify(form));
-    setModalAbierto(false);
-    setFeedback('¡Perfil actualizado exitosamente!');
-    setTimeout(() => setFeedback(''), 2500);
-    // Aquí iría la lógica para guardar los cambios en backend
+    try {
+      const token = localStorage.getItem('token');
+      const clienteId = localStorage.getItem('cliente_id');
+      
+      const response = await axios.put(
+        `http://localhost:3001/api/clientes/${clienteId}`,
+        form,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      if (response.data) {
+        setDatos(response.data);
+        setModalAbierto(false);
+        setFeedback('¡Perfil actualizado exitosamente!');
+        setTimeout(() => setFeedback(''), 2500);
+      }
+    } catch (error) {
+      console.error('Error al actualizar:', error);
+      setFeedback('Error al actualizar el perfil. Por favor, intenta nuevamente.');
+      setTimeout(() => setFeedback(''), 2500);
+    }
   };
 
   return (
@@ -74,7 +106,7 @@ const PerfilUsuario = () => {
       )}
       <div className="flex items-center mb-6 gap-4">
         <div className="w-14 h-14 rounded-full bg-[#f3f3f3] flex items-center justify-center text-2xl font-bold text-[#444]">
-          {datos.nombre[0]}{datos.apellido[0]}
+          {datos.nombre && datos.nombre[0]}{datos.apellido && datos.apellido[0]}
         </div>
         <div>
           <div className="flex items-center gap-2">
@@ -208,4 +240,4 @@ const PerfilUsuario = () => {
   );
 };
 
-export default PerfilUsuario; 
+export default PerfilUsuario;

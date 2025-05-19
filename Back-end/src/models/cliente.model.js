@@ -17,7 +17,7 @@ const Cliente = sequelize.define('Cliente', {
         allowNull: false
     },
     fecha_nacimiento: {
-        type: DataTypes.DATEONLY,
+        type: DataTypes.DATE,
         allowNull: true
     },
     genero: {
@@ -71,8 +71,8 @@ const Cliente = sequelize.define('Cliente', {
 });
 
 // Método para comparar contraseñas
-Cliente.prototype.comparePassword = async function (candidatePassword) {
+Cliente.prototype.comparePassword = async function(candidatePassword) {
     return bcrypt.compare(candidatePassword, this.contrasena);
 };
 
-module.exports = Cliente; 
+module.exports = Cliente;

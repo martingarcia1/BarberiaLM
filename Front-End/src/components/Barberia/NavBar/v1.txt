@@ -5,15 +5,12 @@ import { BsInfoCircle } from "react-icons/bs";
 import { FaUserCircle } from "react-icons/fa";
 import { MdShoppingBag } from "react-icons/md";
 import { Link, useNavigate } from 'react-router-dom';
-import { isTokenvalid } from '../../../utils/isTokenValid.js';
-import PropTypes from 'prop-types';
 import Carrito from '../Carrito/Carrito.jsx';
 
 const Navbar = () => {
-  const [isLogged, setIsLogged] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [Contadorprod, setContadorProd] = useState(null);
-  // const [isLogged, setIsLogged] = useState(!!localStorage.getItem("token"));
+  const [isLogged, setIsLogged] = useState(!!localStorage.getItem("token"));
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
   const navigate = useNavigate();
@@ -21,9 +18,9 @@ const Navbar = () => {
   const actualizarContadorCarrito = () => {
     const savedCart = localStorage.getItem("carrito");
     if (savedCart) {
-      const prod = JSON.parse(savedCart)
-      const cantidadProd = prod.map(p => p.cantidad);
-      setContadorProd(cantidadProd.reduce((acumulador, valorActual) => acumulador + valorActual, 0))
+      const prod=JSON.parse(savedCart)
+      const cantidadProd = prod.map(p=>p.cantidad);
+     setContadorProd(cantidadProd.reduce((acumulador, valorActual) => acumulador + valorActual, 0))
     }
   };
 
@@ -36,17 +33,11 @@ const Navbar = () => {
   }, [cartOpen]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-
-    if (token && isTokenvalid(token)) {
-      setIsLogged(true);
-    } else {
-      setIsLogged(false);
-      if (window.location.pathname.includes('/cliente/')) {
-        navigate('/login/cliente');
-      }
-    }
-  }, [navigate]);
+    setIsLogged(!!localStorage.getItem("token"));
+    const onStorage = () => setIsLogged(!!localStorage.getItem("token"));
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -71,27 +62,15 @@ const Navbar = () => {
     navigate("/");
   };
 
-  const goToProfile = () => {
-    const tipoUsuario = localStorage.getItem("tipoUsuario");
-    setUserMenuOpen(false);
-    if (tipoUsuario === "cliente") {
-      navigate("/cliente/dashboard");
-    } else if (tipoUsuario === "empleado") {
-      navigate("/empleado/dashboard");
-    } else if (tipoUsuario === "admin") {
-      navigate("/admin/dashboard");
-    }
-  };
-
   return (
     <>
       <nav id='pppp' className="z-10  bg-[#cacfca] pb-2 fixed w-full top-0 left-0 flex items-center justify-between p-2 text-[#0A4B2E]">
         <Link to="/" >
           <div className="bg-[#cacfca] border bg-opacity-60 ml-4 movil-sm:ml-1 w-[90px] h-[90px] movil-s:w-[70px] movil-s:h-[70px] movil-sm:w-[60px] movil-sm:h-[60px] cursor-pointer rounded-full border-b-[#0E3C09] border-t-[#0E3C09] border-y-2 border-opacity-55 border-r-[#0E3C09] border-l-[#0E3C09] hover:scale-110 hover:border-opacity-50 transition-transform duration-300 group flex items-center justify-center">
-            <img
-              src="/img/labarberia.jpg"
-              alt="Logo La Barbería LM"
-              className="w-[70px] h-[70px] movil-s:w-[50px] movil-s:h-[50px] movil-sm:w-[40px] movil-sm:h-[40px] rounded-full object-cover border-2  shadow-md"
+            <img 
+              src="/img/labarberia.jpg" 
+              alt="Logo La Barbería LM" 
+              className="w-[70px] h-[70px] movil-s:w-[50px] movil-s:h-[50px] movil-sm:w-[40px] movil-sm:h-[40px] rounded-full object-cover border-2  shadow-md" 
             />
           </div>
         </Link>
