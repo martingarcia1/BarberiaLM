@@ -30,17 +30,17 @@ const Home = () => {
       <div className="bg-[#232323] py-16">
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 px-6">
           <div className="flex flex-col items-center">
-            <img src="/img/servicio-barba.jpg" alt="Barba" className="w-32 h-32 object-cover rounded-full mb-4 border-4 border-[#AFB3B7]" />
+            <img src="/img/afeitado_barba.jpeg" alt="Barba" className="w-32 h-32 object-cover rounded-full mb-4 border-4 border-[#AFB3B7]" />
             <h3 className="text-xl text-white font-bold mb-2">Afeitado de Barba</h3>
             <p className="text-[#bdbdbd] text-center">Disfruta de un afeitado clásico y relajante con toalla caliente y productos premium.</p>
           </div>
           <div className="flex flex-col items-center">
-            <img src="/img/servicio-corte.jpg" alt="Corte" className="w-32 h-32 object-cover rounded-full mb-4 border-4 border-[#AFB3B7]" />
+            <img src="/img/imagen2.jpeg" alt="Corte" className="w-32 h-32 object-cover rounded-full mb-4 border-4 border-[#AFB3B7]" />
             <h3 className="text-xl text-white font-bold mb-2">Corte de Cabello</h3>
             <p className="text-[#bdbdbd] text-center">Cortes modernos y tradicionales, personalizados para cada cliente por barberos expertos.</p>
           </div>
           <div className="flex flex-col items-center">
-            <img src="/img/servicio-online.jpg" alt="Reserva Online" className="w-32 h-32 object-cover rounded-full mb-4 border-4 border-[#AFB3B7]" />
+            <img src="/img/turno.jpeg" alt="Reserva Online" className="w-32 h-32 object-cover rounded-full mb-4 border-4 border-[#AFB3B7]" />
             <h3 className="text-xl text-white font-bold mb-2">Reserva Online</h3>
             <p className="text-[#bdbdbd] text-center">Agenda tu turno fácilmente desde nuestra web y elige el horario que más te convenga.</p>
           </div>
@@ -126,7 +126,7 @@ const Home = () => {
       {/* ¿Qué nos destaca? */}
       <div className="bg-[#181818] py-16">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-10 px-6">
-          <img src="/img/barberia-interior.jpg" alt="Interior Barbería" className="w-full md:w-1/2 rounded-lg shadow-lg mb-6 md:mb-0" />
+          <img src="/img/banner1.jpeg" alt="Interior Barbería" className="w-full md:w-1/2 rounded-lg shadow-lg mb-6 md:mb-0" />
           <div className="flex-1">
             <h2 className="text-3xl text-white font-bold mb-4 font-julius">¿Qué nos destaca?</h2>
             <p className="text-[#bdbdbd] mb-6">En La Barberia LM combinamos tradición y modernidad, ofreciendo un ambiente acogedor, atención personalizada y los mejores productos del mercado. Nuestro compromiso es que cada cliente viva una experiencia única y salga renovado.</p>
