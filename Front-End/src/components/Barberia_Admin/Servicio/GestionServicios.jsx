@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { API_URL } from "../../config/api";
+import { API_URL } from "../../../config/api";
 
 const GestionServicios = () => {
   const [servicios, setServicios] = useState([]);
@@ -154,8 +154,8 @@ const GestionServicios = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${servicio.estado === 'activo'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
                     }`}>
                     {servicio.estado}
                   </span>
