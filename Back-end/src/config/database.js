@@ -8,6 +8,7 @@ if (process.env.DATABASE_URL) {
   // Configuración para producción (Railway/Vercel) usando la URL de conexión
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'mysql',
+    dialectModule: require('mysql2'),
     logging: false,
     dialectOptions: {
       ssl: {
