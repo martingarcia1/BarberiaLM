@@ -35,6 +35,10 @@ const Admin = sequelize.define('Admin', {
                 const salt = await bcrypt.genSalt(10);
                 admin.contrasena = await bcrypt.hash(admin.contrasena, salt);
             }
+            // Asegurar que updated_at tenga un valor al crear
+            if (!admin.updated_at) {
+                admin.updated_at = new Date();
+            }
         },
         beforeUpdate: async (admin) => {
             if (admin.changed('contrasena')) {

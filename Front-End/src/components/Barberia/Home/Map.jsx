@@ -1,30 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { GoogleMap, LoadScript, MarkerF } from "@react-google-maps/api";
+import React, { useState, useMemo } from "react";
+import { GoogleMap, useJsApiLoader, MarkerF } from "@react-google-maps/api";
 import credenciales from '../../../utils/credenciales';
 
 const libraries = ["places"];
 
-// Mover el componente LoadScript fuera del componente Map
 const MapContainer = () => {
-  return (
-    <LoadScript 
-      googleMapsApiKey={credenciales.mapKey}
-      libraries={libraries}
-      loadingElement={<div className="font-julius">Cargando...</div>}
-    >
-      <Map />
-    </LoadScript>
-  );
-};
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: credenciales.mapKey,
+    libraries: libraries,
+  });
 
-const Map = () => {
   const [mapCenter, setMapCenter] = useState({ 
     lat: -26.837347522712616, 
     lng: -65.23760063499219 
   });
   const [zoom, setZoom] = useState(15);
   const mapContainerStyle = { width: "100%", height: "400px" };
-  const iconURL = <img src="/img/OIP.png" alt="" />;
+  
+  // Icono como URL string en lugar de JSX
+  const iconURL = "/img/OIP.png";
 
   const posiciones = [
     { 
@@ -43,12 +38,23 @@ const Map = () => {
     }
   };
 
+  // Opciones del mapa
+  const mapOptions = useMemo(() => ({
+    disableDefaultUI: false,
+    clickableIcons: true,
+  }), []);
+
+  if (!isLoaded) {
+    return <div className="font-julius flex items-center justify-center h-full">Cargando...</div>;
+  }
+
   return (
     <>
       <GoogleMap
-        center={mapCenter}
         mapContainerStyle={mapContainerStyle}
+        center={mapCenter}
         zoom={zoom}
+        options={mapOptions}
       >
         {posiciones.map(p => (
           <MarkerF
