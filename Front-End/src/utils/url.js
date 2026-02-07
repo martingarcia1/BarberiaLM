@@ -1,4 +1,5 @@
+import { API_URL } from '../config/api';
+
 export default {
-    // urlKey: "https://protective-heart-production.up.railway.app"
-    urlKey: "http://localhost:3001"
+    urlKey: API_URL
 }

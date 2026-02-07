@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
+import { API_URL } from "../config/api";
 
 export default function LoginEmpleado() {
   const [email, setEmail] = useState("");
@@ -13,7 +14,7 @@ export default function LoginEmpleado() {
   const handlerLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3001/api/empleados/login', {
+      const response = await axios.post(`${API_URL}/empleados/login`, {
         email,
         contrasena
       });

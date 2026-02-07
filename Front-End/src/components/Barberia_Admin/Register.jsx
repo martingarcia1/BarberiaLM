@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
+import { API_URL } from "../../config/api";
 
 const generos = ["Masculino", "Femenino", "Otro"];
 
@@ -41,7 +42,7 @@ const Register = () => {
   const handleNext = (e) => {
     e.preventDefault();
     setError("");
-    
+
     if (step === 1) {
       if (!form.nombre || !form.apellido || !form.fechaNacimiento || !form.genero) {
         setError("Por favor completa todos los campos");
@@ -82,7 +83,7 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
-    
+
     if (!form.contrasena || !form.repeatPassword) {
       setError("Por favor completa todos los campos");
       return;
@@ -108,13 +109,13 @@ const Register = () => {
         contrasena: form.contrasena
       };
 
-      const response = await axios.post('http://localhost:3001/api/clientes/register', datosCliente);
-      
+      const response = await axios.post(`${API_URL}/clientes/register`, datosCliente);
+
       if (response.data) {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("cliente_id", response.data.cliente?.id);
         localStorage.setItem("tipoUsuario", "cliente");
-        
+
         notyf.success("¡Registro exitoso!");
         navigate("/");
       }

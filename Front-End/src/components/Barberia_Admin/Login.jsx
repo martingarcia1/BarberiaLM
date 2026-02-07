@@ -5,6 +5,7 @@ import { isTokenvalid } from "../../utils/isTokenValid";
 import logo from "/img/labarberia.jpg";
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
+import { API_URL } from "../../config/api";
 
 const Login = () => {
   const [pass, setPass] = useState("");
@@ -14,15 +15,15 @@ const Login = () => {
   const notyf = new Notyf({
     duration: 3000,
     position: {
-        x: 'center',
-        y: 'top',
+      x: 'center',
+      y: 'top',
     },
     types: [
-        {
-            type: 'success',
-            background: "#28b463     ",
-            className: "rounded-[10px] text-black text-[15px]"
-        }
+      {
+        type: 'success',
+        background: "#28b463     ",
+        className: "rounded-[10px] text-black text-[15px]"
+      }
     ]
   });
 
@@ -34,12 +35,12 @@ const Login = () => {
     if (token && isTokenvalid(token) && tipo === 'admin') {
       navigate('/admin/dashboard');
     }
-  }, [navigate]); 
+  }, [navigate]);
 
   const handlerLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3001/api/admins/login', {
+      const response = await axios.post(`${API_URL}/admins/login`, {
         email: usuario,
         contrasena: pass // Corregido de 'contraseña' a 'contrasena'
       });

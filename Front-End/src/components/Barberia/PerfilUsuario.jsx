@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { isTokenvalid } from "../../utils/isTokenValid";
+import { API_URL } from "../config/api";
 
 const PerfilUsuario = () => {
   const [datos, setDatos] = useState({});
@@ -15,7 +16,7 @@ const PerfilUsuario = () => {
     const token = localStorage.getItem('token');
     const clienteId = localStorage.getItem('cliente_id');
     const tipoUsuario = localStorage.getItem('tipoUsuario');
-    
+
     if (!token || !clienteId || !isTokenvalid(token) || tipoUsuario !== 'cliente') {
       localStorage.clear();
       navigate('/login/cliente');
@@ -24,7 +25,7 @@ const PerfilUsuario = () => {
 
     const cargarDatosUsuario = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/api/clientes/${clienteId}`, {
+        const response = await axios.get(`${API_URL}/clientes/${clienteId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (response.data) {
@@ -67,9 +68,9 @@ const PerfilUsuario = () => {
     try {
       const token = localStorage.getItem('token');
       const clienteId = localStorage.getItem('cliente_id');
-      
+
       const response = await axios.put(
-        `http://localhost:3001/api/clientes/${clienteId}`,
+        `${API_URL}/clientes/${clienteId}`,
         form,
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -147,7 +148,7 @@ const PerfilUsuario = () => {
           </div>
           <div className="mb-4">
             <span className="font-bold">Fecha de nacimiento</span>
-            <div>{new Date(datos.fechaNacimiento).toLocaleDateString() }</div>
+            <div>{new Date(datos.fechaNacimiento).toLocaleDateString()}</div>
           </div>
         </div>
       </div>

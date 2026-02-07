@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from "../../config/api";
 
 const GestionMetodosPago = () => {
   const [metodosPago, setMetodosPago] = useState([]);
@@ -17,7 +18,7 @@ const GestionMetodosPago = () => {
 
   const fetchMetodosPago = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/metodos-pago');
+      const response = await axios.get(`${API_URL}/metodos-pago`);
       setMetodosPago(response.data);
     } catch (error) {
       console.error('Error al obtener métodos de pago:', error);
@@ -28,9 +29,9 @@ const GestionMetodosPago = () => {
     e.preventDefault();
     try {
       if (metodoSeleccionado) {
-        await axios.put(`http://localhost:3001/api/metodos-pago/${metodoSeleccionado.id}`, form);
+        await axios.put(`${API_URL}/metodos-pago/${metodoSeleccionado.id}`, form);
       } else {
-        await axios.post('http://localhost:3001/api/metodos-pago', form);
+        await axios.post(`${API_URL}/metodos-pago`, form);
       }
       setShowModal(false);
       setMetodoSeleccionado(null);
@@ -54,7 +55,7 @@ const GestionMetodosPago = () => {
   const handleDelete = async (id) => {
     if (window.confirm('¿Está seguro de eliminar este método de pago?')) {
       try {
-        await axios.delete(`http://localhost:3001/api/metodos-pago/${id}`);
+        await axios.delete(`${API_URL}/metodos-pago/${id}`);
         fetchMetodosPago();
       } catch (error) {
         console.error('Error al eliminar método de pago:', error);
@@ -107,11 +108,10 @@ const GestionMetodosPago = () => {
                   {metodo.descripcion}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    metodo.estado === 'activo' 
-                      ? 'bg-green-100 text-green-800' 
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${metodo.estado === 'activo'
+                      ? 'bg-green-100 text-green-800'
                       : 'bg-red-100 text-red-800'
-                  }`}>
+                    }`}>
                     {metodo.estado}
                   </span>
                 </td>

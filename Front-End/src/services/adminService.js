@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
-const API_URL = 'http://localhost:3001/api/admins';
+const ADMIN_URL = `${API_URL}/admins`;
 
 export const loginAdmin = (email, contrasena) =>
-  axios.post(`${API_URL}/login`, { email, contrasena });
+  axios.post(`${ADMIN_URL}/login`, { email, contrasena });

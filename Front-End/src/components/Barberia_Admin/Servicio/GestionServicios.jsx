@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from "../../config/api";
 
 const GestionServicios = () => {
   const [servicios, setServicios] = useState([]);
@@ -20,7 +21,7 @@ const GestionServicios = () => {
 
   const fetchServicios = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/servicios');
+      const response = await axios.get(`${API_URL}/servicios`);
       setServicios(response.data);
     } catch (error) {
       console.error('Error al obtener servicios:', error);
@@ -38,9 +39,9 @@ const GestionServicios = () => {
       };
 
       if (servicioSeleccionado) {
-        await axios.put(`http://localhost:3001/api/servicios/${servicioSeleccionado.id}`, servicioData);
+        await axios.put(`${API_URL}/servicios/${servicioSeleccionado.id}`, servicioData);
       } else {
-        await axios.post('http://localhost:3001/api/servicios', servicioData);
+        await axios.post(`${API_URL}/servicios`, servicioData);
       }
       setShowModal(false);
       setServicioSeleccionado(null);
@@ -74,7 +75,7 @@ const GestionServicios = () => {
   const handleDelete = async (id) => {
     if (window.confirm('¿Está seguro de eliminar este servicio?')) {
       try {
-        await axios.delete(`http://localhost:3001/api/servicios/${id}`);
+        await axios.delete(`${API_URL}/servicios/${id}`);
         fetchServicios();
       } catch (error) {
         console.error('Error al eliminar servicio:', error);
@@ -152,11 +153,10 @@ const GestionServicios = () => {
                   {servicio.puntos_requeridos}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    servicio.estado === 'activo' 
-                      ? 'bg-green-100 text-green-800' 
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${servicio.estado === 'activo'
+                      ? 'bg-green-100 text-green-800'
                       : 'bg-red-100 text-red-800'
-                  }`}>
+                    }`}>
                     {servicio.estado}
                   </span>
                 </td>

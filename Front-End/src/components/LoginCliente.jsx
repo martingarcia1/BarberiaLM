@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
+import { API_URL } from "../config/api";
 
 export default function LoginCliente() {
   const [email, setEmail] = useState("");
@@ -13,7 +14,7 @@ export default function LoginCliente() {
   const handlerLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3001/api/clientes/login', {
+      const response = await axios.post(`${API_URL}/clientes/login`, {
         email,
         contrasena
       });
@@ -23,7 +24,7 @@ export default function LoginCliente() {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('tipoUsuario', 'cliente');
         localStorage.setItem('cliente_id', response.data.cliente.id);
-        
+
         // Guardar datos del usuario
         const userData = {
           nombre: response.data.cliente.nombre,
@@ -31,7 +32,7 @@ export default function LoginCliente() {
           id: response.data.cliente.id
         };
         localStorage.setItem('user', JSON.stringify(userData));
-        
+
         notyf.success("¡Bienvenido!");
         navigate('/cliente/dashboard');
       }

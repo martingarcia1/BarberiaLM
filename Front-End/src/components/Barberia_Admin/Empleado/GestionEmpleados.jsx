@@ -4,6 +4,7 @@ import NuevoEmpleado from './NuevoEmpleado';
 import EditarEmpleado from './EditarEmpleado';
 import ModalEliminarEmpleado from './ModalEliminarEmpleado';
 import { FaUserEdit, FaTrashAlt, FaUserPlus } from 'react-icons/fa';
+import { API_URL } from "../../../config/api";
 
 const GestionEmpleados = () => {
   const [empleados, setEmpleados] = useState([]);
@@ -16,7 +17,7 @@ const GestionEmpleados = () => {
 
   const fetchEmpleados = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/empleados');
+      const response = await axios.get(`${API_URL}/empleados`);
       setEmpleados(response.data);
     } catch (error) {
       console.error('Error al obtener empleados:', error);
@@ -39,7 +40,7 @@ const GestionEmpleados = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(`http://localhost:3001/api/empleados/${selectedEmpleado.id}`);
+      await axios.delete(`${API_URL}/empleados/${selectedEmpleado.id}`);
       setShowDeleteModal(false);
       setSelectedEmpleado(null);
       fetchEmpleados();
@@ -122,11 +123,10 @@ const GestionEmpleados = () => {
                   ${empleado.salario}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    empleado.estado === 'activo' 
-                      ? 'bg-green-100 text-green-800' 
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${empleado.estado === 'activo'
+                      ? 'bg-green-100 text-green-800'
                       : 'bg-red-100 text-red-800'
-                  }`}>
+                    }`}>
                     {empleado.estado}
                   </span>
                 </td>
