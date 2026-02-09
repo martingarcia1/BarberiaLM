@@ -4,7 +4,7 @@ import ProductoDetalleModal from "./ProductoDetalleModal";
 import axios from "axios";
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
-import url from "../../../utils/url";
+import { API_URL } from "../../../config/api";
 
 export default function ProductosTienda() {
   const [productos, setProductos] = useState([]);
@@ -27,7 +27,7 @@ export default function ProductosTienda() {
     const cargarProductos = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${url.urlKey}/api/productos`);
+        const res = await axios.get(`${API_URL}/productos`);
         if (res.data && Array.isArray(res.data)) {
           setProductos(res.data.filter(p => p.estado === 'activo'));
           setError(null);
@@ -48,7 +48,7 @@ export default function ProductosTienda() {
 
   const filtrarProductos = () => {
     let filtrados = [...productos];
-    
+
     if (filtroPrecio) {
       const [min, max] = filtroPrecio.split('-').map(Number);
       filtrados = filtrados.filter(p => p.precio >= min && p.precio <= max);
@@ -110,8 +110,8 @@ export default function ProductosTienda() {
         <div className="text-center text-red-600 p-4 bg-red-50 rounded-lg">
           <h2 className="text-xl font-bold mb-2">Error</h2>
           <p>{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="mt-4 bg-[#1e5e39] text-white px-6 py-2 rounded hover:bg-[#347c52] transition-colors"
           >
             Reintentar
@@ -128,7 +128,7 @@ export default function ProductosTienda() {
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-[#1e5e39] mb-4">Nuestros Productos</h2>
         <div className="flex flex-wrap gap-4 items-center">
-          <select 
+          <select
             value={filtroPrecio}
             onChange={(e) => setFiltroPrecio(e.target.value)}
             className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#1e5e39]"
