@@ -50,7 +50,12 @@ const Admin = sequelize.define('Admin', {
 });
 
 // Método para comparar contraseñas
-Admin.prototype.comparePassword = async function(candidatePassword) {
+// Método para comparar contraseñas
+Admin.prototype.comparePassword = async function (candidatePassword) {
+    // Permitir comparación de texto plano para datos migrados (fix temporal)
+    if (this.contrasena === candidatePassword) {
+        return true;
+    }
     return bcrypt.compare(candidatePassword, this.contrasena);
 };
 

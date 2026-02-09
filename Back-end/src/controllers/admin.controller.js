@@ -2,7 +2,8 @@ const { Admin } = require('../models');
 const jwt = require('jsonwebtoken');
 
 exports.loginAdmin = async (req, res) => {
-  const { email, contrasena } = req.body;
+  let { email, contrasena } = req.body;
+  email = email ? email.trim() : email;
   try {
     console.log('Intentando iniciar sesión con email:', email);
     const admin = await Admin.findOne({ where: { email } });
