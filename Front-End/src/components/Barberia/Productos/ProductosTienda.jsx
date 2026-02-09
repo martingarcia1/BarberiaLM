@@ -4,7 +4,7 @@ import ProductoDetalleModal from "./ProductoDetalleModal";
 import axios from "axios";
 import { Notyf } from 'notyf';
 import 'notyf/notyf.min.css';
-import url from "../../../utils/url";
+import { API_URL } from "../../../config/api";
 
 export default function ProductosTienda() {
   const [productos, setProductos] = useState([]);
@@ -27,7 +27,7 @@ export default function ProductosTienda() {
     const cargarProductos = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${url.urlKey}/api/productos`);
+        const res = await axios.get(`${API_URL}/productos`);
         if (res.data && Array.isArray(res.data)) {
           setProductos(res.data.filter(p => p.estado === 'activo'));
           setError(null);

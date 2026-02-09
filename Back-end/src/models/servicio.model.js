@@ -25,11 +25,7 @@ const Servicio = sequelize.define('Servicio', {
         allowNull: false,
         comment: 'duración en minutos'
     },
-    puntos_requeridos: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 0
-    },
+
     estado: {
         type: DataTypes.ENUM('activo', 'inactivo'),
         defaultValue: 'activo'
