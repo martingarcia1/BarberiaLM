@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { API_URL } from "../../../config/api";
 import ServiciosInfo from './ServiciosInfo';
 import Modal from 'react-modal';
 import Footer from '../Home/Footer';
@@ -14,128 +16,38 @@ const Servicios = () => {
         setProductosEnCarrito(carrito);
     }, []);
 
-    const servicios = [
-        {
-            id: 1,
-            img: "/img/media-americana.jpeg",
-            name: "Media Americano",
-            price: 6000,
-            descripcion: "",
-            duracion: "30 min",
-            carrito: false,
-            cantidad: 1
-        },
-        {
-            id: 2,
-            img: "/img/made-fade.jpeg",
-            name: "Made Fade",
-            price: 6000,
-            descripcion: "",
-            duracion: "45 min",
-            carrito: false,
-            cantidad: 1
-        },
-        {
-            id: 3,
-            img: "/img/made-fade-en-v.jpeg",
-            name: "Made Fade en V",
-            price: 6000,
-            descripcion: "",
-            duracion: "30 min",
-            carrito: false,
-            cantidad: 1
-        },
-        {
-            id: 4,
-            img: "/img/low-fade.jpeg",
-            name: "Low Fade",
-            price: 6000,
-            descripcion: "",
-            duracion: "60 min",
-            carrito: false,
-            cantidad: 1
-        },
-        {
-            id: 5,
-            img: "/img/mullet.jpeg",
-            name: "Mullet",
-            price: 6000,
-            descripcion: "",
-            duracion: "45 min",
-            carrito: false,
-            cantidad: 1
-        },
-        {
-            id: 6,
-            img: "/img/high-fade.jpeg",
-            name: "High Fade",
-            price: 6000,
-            descripcion: "",
-            duracion: "50 min",
-            carrito: false,
-            cantidad: 1
-        },
-        {
-            id: 7,
-            img: "/img/buzz-cut.jpeg",
-            name: "Buzz Cut",
-            price: 6000,
-            descripcion: "",
-            duracion: "50 min",
-            carrito: false,
-            cantidad: 1
-        },
-        {
-            id: 8,
-            img: "/img/nacional-b.jpeg",
-            name: "Nacional B",
-            price: 6000,
-            descripcion: "",
-            duracion: "50 min",
-            carrito: false,
-            cantidad: 1
-        },
-        {
-            id: 9,
-            img: "/img/corte-de-barba.jpeg",
-            name: "Corte de Barba",
-            price: 2000,
-            descripcion: "",
-            duracion: "30 min",
-            carrito: false,
-            cantidad: 1
-        },
-        {
-            id: 10,
-            img: "/img/teñido-corte.jpeg",
-            name: "Teñido + Corte",
-            price: 35000,
-            descripcion: "",
-            duracion: "50 min",
-            carrito: false,
-            cantidad: 1
-        },
-        {
-            id: 11,
-            img: "/img/corte-lavado.jpeg",
-            name: "Corte + lavado",
-            price: 7000,
-            descripcion: "",
-            duracion: "45 min",
-            carrito: false,
-            cantidad: 1
-        }, 
-        {
-            id: 12,
-            img: "/img/combo.jpeg",
-            name: "Combo Completo",
-            price: 40000,
-            descripcion: "Corte de cabello + afeitado de barba + tratamiento facial",
-            duracion: "60 min",
-            carrito: false,
-            cantidad: 1
-        }
-    ];
+    const [servicios, setServicios] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchServicios = async () => {
+            try {
+                const response = await axios.get(`${API_URL}/servicios`);
+                // Mapear los datos de la DB al formato que espera el componente
+                const serviciosMapeados = response.data.map(servicio => ({
+                    id: servicio.id,
+                    // Si no hay imagen en DB, usar una por defecto o mapear según nombre
+                    img: servicio.imagen_url || "/img/barberia-default.jpg",
+                    name: servicio.nombre_servicio,
+                    price: parseFloat(servicio.precio),
+                    descripcion: servicio.descripcion,
+                    duracion: `${servicio.duracion} min`,
+                    carrito: false,
+                    cantidad: 1
+                }));
+                setServicios(serviciosMapeados);
+            } catch (error) {
+                console.error("Error al cargar servicios:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchServicios();
+
+        const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+        setProductosEnCarrito(carrito);
+    }, []);
 
     const closeModal = () => {
         setModalIsOpen(false);
