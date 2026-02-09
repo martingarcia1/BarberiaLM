@@ -109,7 +109,7 @@ const Register = () => {
         contrasena: form.contrasena
       };
 
-      const response = await axios.post(`${API_URL}/clientes/register`, datosCliente);
+      const response = await axios.post(`${API_URL}/clientes/auth/register`, datosCliente);
 
       if (response.data) {
         localStorage.setItem("token", response.data.token);
