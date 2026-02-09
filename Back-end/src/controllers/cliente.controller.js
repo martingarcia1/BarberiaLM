@@ -20,9 +20,13 @@ exports.loginCliente = async (req, res) => {
     console.log('Contraseña en BD:', cliente.contrasena);
     console.log('Comparando:', contrasena, 'vs', cliente.contrasena);
     const esValida = await bcrypt.compare(contrasena, cliente.contrasena);
-    console.log('¿Contraseña válida?', esValida);
 
-    if (!esValida) {
+    // Fallback para usuarios legacy con contraseña en texto plano
+    if (!esValida && contrasena === cliente.contrasena) {
+      console.log('Login exitoso con contraseña legado (texto plano)');
+      // Opción: aquí podríamos actualizar la contraseña a hash automáticamente, 
+      // pero por ahora solo permitimos el acceso.
+    } else if (!esValida) {
       return res.status(401).json({ message: 'Email o contraseña incorrectos' });
     }
 

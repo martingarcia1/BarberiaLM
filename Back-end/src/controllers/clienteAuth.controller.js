@@ -17,49 +17,46 @@ const generateToken = (cliente) => {
 
 exports.register = async (req, res) => {
   const t = await sequelize.transaction();
-  
+
   try {
-    const { 
-      nombre, 
-      apellido, 
-      email, 
-      dni, 
-      telefono, 
+    const {
+      nombre,
+      apellido,
+      email,
+      dni,
+      telefono,
       contrasena,
       fecha_nacimiento,
-      genero 
+      genero
     } = req.body;
 
     // Verificar si el email ya existe
-    const existingEmail = await Cliente.findOne({ 
+    const existingEmail = await Cliente.findOne({
       where: { email },
-      transaction: t 
+      transaction: t
     });
-    
+
     if (existingEmail) {
       await t.rollback();
-      return res.status(400).json({ 
-        success: false, 
-        message: 'El email ya está registrado' 
+      return res.status(400).json({
+        success: false,
+        message: 'El email ya está registrado'
       });
     }
 
     // Verificar si el DNI ya existe
-    const existingDNI = await Cliente.findOne({ 
+    const existingDNI = await Cliente.findOne({
       where: { dni },
-      transaction: t 
+      transaction: t
     });
-    
+
     if (existingDNI) {
       await t.rollback();
-      return res.status(400).json({ 
-        success: false, 
-        message: 'El DNI ya está registrado' 
+      return res.status(400).json({
+        success: false,
+        message: 'El DNI ya está registrado'
       });
     }
-
-    // Hashear contraseña
-    const hashedPassword = await bcrypt.hash(contrasena, 10);
 
     // Crear el nuevo cliente
     const nuevoCliente = await Cliente.create({
@@ -68,7 +65,7 @@ exports.register = async (req, res) => {
       email,
       dni,
       telefono,
-      contrasena: hashedPassword,
+      contrasena, // Se pasará en texto plano y el hook del modelo lo hasheará
       fecha_nacimiento,
       genero,
       estado: 'activo'
@@ -96,10 +93,10 @@ exports.register = async (req, res) => {
   } catch (error) {
     await t.rollback();
     console.error('Error en registro:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error al registrar cliente', 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      message: 'Error al registrar cliente',
+      error: error.message
     });
   }
 };
@@ -107,28 +104,28 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, contrasena } = req.body;
-    
+
     // Buscar el cliente
-    const cliente = await Cliente.findOne({ 
-      where: { 
+    const cliente = await Cliente.findOne({
+      where: {
         email,
         estado: 'activo'
-      } 
+      }
     });
 
     if (!cliente) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Credenciales inválidas' 
+      return res.status(401).json({
+        success: false,
+        message: 'Credenciales inválidas'
       });
     }
 
     // Verificar contraseña
     const isMatch = await bcrypt.compare(contrasena, cliente.contrasena);
     if (!isMatch) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Credenciales inválidas' 
+      return res.status(401).json({
+        success: false,
+        message: 'Credenciales inválidas'
       });
     }
 
@@ -151,10 +148,10 @@ exports.login = async (req, res) => {
     });
   } catch (error) {
     console.error('Error en login:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error al iniciar sesión', 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      message: 'Error al iniciar sesión',
+      error: error.message
     });
   }
 };
