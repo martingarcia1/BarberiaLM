@@ -27,7 +27,7 @@ const Servicios = () => {
                 const serviciosMapeados = response.data.map(servicio => ({
                     id: servicio.id,
                     // Si no hay imagen en DB, usar una por defecto o mapear según nombre
-                    img: servicio.imagen_url || "/img/barberia-default.jpg",
+                    img: servicio.imagen_url || "/img/labarberia.jpg",
                     name: servicio.nombre_servicio,
                     price: parseFloat(servicio.precio),
                     descripcion: servicio.descripcion,

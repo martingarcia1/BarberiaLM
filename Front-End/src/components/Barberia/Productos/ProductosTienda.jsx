@@ -156,7 +156,8 @@ export default function ProductosTienda() {
                 ...prod,
                 img: prod.imagen_url,
                 name: prod.nombre_producto,
-                price: prod.precio
+                price: prod.precio,
+                img: prod.imagen_url || "/img/labarberia.jpg"
               }}
               agregarAlCarrito={() => agregarAlCarrito(prod)}
               openModal={() => abrirModalDetalle(prod)}
