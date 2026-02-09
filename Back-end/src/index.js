@@ -17,11 +17,9 @@ const corsOptions = {
     // Permitir requests sin origin (como mobile apps o curl)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(null, true); // En desarrollo, permitir todos los orígenes
-    }
+    // Para simplificar el despliegue y evitar errores de CORS, permitimos todos los orígenes
+    // En producción idealmente se deberían restringir, pero para este caso de uso es aceptable
+    return callback(null, true);
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
